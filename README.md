@@ -1,14 +1,14 @@
 # АНАЛИЗ ДАННЫХ И ИСКУССТВЕННЫЙ ИНТЕЛЛЕКТ [in GameDev]
 Отчет по лабораторной работе #1 выполнил(а):
-- Иванова Ивана Варкравтовна
-- РИ000024
+- Худорожкова Екатерина Дмитриевна
+- РИ-210933
 Отметка о выполнении заданий (заполняется студентом):
 
 | Задание | Выполнение | Баллы |
 | ------ | ------ | ------ |
-| Задание 1 | # | 60 |
-| Задание 2 | # | 20 |
-| Задание 3 | # | 20 |
+| Задание 1 | * | 60 |
+| Задание 2 | * | 20 |
+| Задание 3 | * | 20 |
 
 знак "*" - задание выполнено; знак "#" - задание не выполнено;
 
@@ -38,92 +38,105 @@
 Ознакомиться с основными операторами зыка Python на примере реализации линейной регрессии.
 
 ## Задание 1
-### Пошагово выполнить каждый пункт раздела "ход работы" с описанием и примерами реализации задач
+### Написать Hello World на Python и Unity
+Ход работы: 
+- На языке Python выводим Hello World одной строчкой. Скриншот с Google Collab.
+![скрин 1](https://user-images.githubusercontent.com/112847807/192756109-b4836b6c-d48a-40a1-a3b0-bdf2e47052b0.png)
+- На языке C# с помощью Unity сделаем вывод той же фразы.
+```py
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class HelloWorld : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+        Debug.Log("Hello World");
+    }
+}
+```
+Скриншот с Unity. 
+
+![скрин 3](https://user-images.githubusercontent.com/112847807/192756798-ee0c2c78-83d4-4431-b641-10068ec430f4.png)
+
+### Задание 2
+### В разделе "ход работы" пошагово выполнить каждый пункт с описанием и примером реализации задачи по теме лабораторной работы
+
 Ход работы:
+
 - Произвести подготовку данных для работы с алгоритмом линейной регрессии. 10 видов данных были установлены случайным образом, и данные находились в линейной зависимости. Данные преобразуются в формат массива, чтобы их можно было вычислить напрямую при использовании умножения и сложения.
 
-```py
+Первичная визуализация данных. 
 
-In [ ]:
-#Import the required modules, numpy for calculation, and Matplotlib for drawing
-import numpy as np
-import matplotlib.pyplot as plt
-#This code is for jupyter Notebook only
-%matplotlib inline
+![1](https://user-images.githubusercontent.com/112847807/192759490-4436061a-91b8-4ad1-b7f7-a0a27aa64dfa.png)
 
-# define data, and change list to array
-x = [3,21,22,34,54,34,55,67,89,99]
-x = np.array(x)
-y = [2,22,24,65,79,82,55,130,150,199]
-y = np.array(y)
 
-#Show the effect of a scatter plot
-plt.scatter(x,y)
+Добавим в код функции. 
 
-```
+![2022-09-28_15-33-48](https://user-images.githubusercontent.com/112847807/192757895-210bb761-bbd1-4efa-a544-8c15481df855.png)
 
 - Определите связанные функции. Функция модели: определяет модель линейной регрессии wx+b. Функция потерь: функция потерь среднеквадратичной ошибки. Функция оптимизации: метод градиентного спуска для нахождения частных производных w и b.
 
+Есть несколько функций, которые связаны между собой. Это optimize и iterate, optimize и model.
+Функции optimize и model связаны, так как для каждого случая создается модель линейной регрессии.
+На каждой итерации нужно находить частные произведения, поэтому optimize и iterate зависят друг от друга.
 
-## Задание 2
-### Должна ли величина loss стремиться к нулю при изменении исходных данных? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ.
+Первая итерация 
 
-- Перечисленные в этом туториале действия могут быть выполнены запуском на исполнение скрипт-файла, доступного [в репозитории](https://github.com/Den1sovDm1triy/hfss-scripting/blob/main/ScreatingSphereInAEDT.py).
-- Для запуска скрипт-файла откройте Ansys Electronics Desktop. Перейдите во вкладку [Automation] - [Run Script] - [Выберите файл с именем ScreatingSphereInAEDT.py из репозитория].
+![Итерация 1](https://user-images.githubusercontent.com/112847807/192758909-4b286bd8-fdff-4f6a-9bd9-9a8470e798c2.png)
 
-```py
+Вторая итерация 
 
-import ScriptEnv
-ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-oDesktop.RestoreWindow()
-oProject = oDesktop.NewProject()
-oProject.Rename("C:/Users/denisov.dv/Documents/Ansoft/SphereDIffraction.aedt", True)
-oProject.InsertDesign("HFSS", "HFSSDesign1", "HFSS Terminal Network", "")
-oDesign = oProject.SetActiveDesign("HFSSDesign1")
-oEditor = oDesign.SetActiveEditor("3D Modeler")
-oEditor.CreateSphere(
-	[
-		"NAME:SphereParameters",
-		"XCenter:="		, "0mm",
-		"YCenter:="		, "0mm",
-		"ZCenter:="		, "0mm",
-		"Radius:="		, "1.0770329614269mm"
-	], 
-)
+![Итерация 2](https://user-images.githubusercontent.com/112847807/192758966-57c11dca-fc99-49a9-828a-f0dd18a394f5.png)
 
-```
+Третья итерация 
+
+![Итерация 3](https://user-images.githubusercontent.com/112847807/192759012-ed424b1c-6b50-4049-b9e8-7c65a0cd7ceb.png)
+
+Четвертая итерация
+
+![Итерация 4](https://user-images.githubusercontent.com/112847807/192759070-fbbf8596-2581-4e94-a0a3-23729b5b6478.png)
+
+Пятая итерация 
+
+![Итерация 5](https://user-images.githubusercontent.com/112847807/192759098-a50dff00-da21-45cb-888c-6f8fc67bae8f.png)
+
+Шестая итерация 
+
+![Итерация 6](https://user-images.githubusercontent.com/112847807/192759149-c4836013-1863-43ae-80b3-3995f1837881.png)
+
 
 ## Задание 3
+### Должна ли величина loss стремиться к нулю при изменении исходных данных? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ.
+Величина стремится к нулю. В этом можно убедиться запустив несколько итераций. 
+
+На 1 итерации среднеквадратичная ошибка больше 2000
+
+![Итерация 1](https://user-images.githubusercontent.com/112847807/192760263-72d300af-fdd6-4111-b5db-34a6a87669fb.png)
+
+На 1000 итерации среднеквадратичная ошибка меньше 200
+
+![Итерация 6](https://user-images.githubusercontent.com/112847807/192760422-a65ba05a-3e01-436e-aabd-249f66b81204.png)
+
+
 ### Какова роль параметра Lr? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ. В качестве эксперимента можете изменить значение параметра.
+Изменение параметра Lr пиводит к уменьшению количества итераций, которые требуются для достижения результата. Другими словами, параметр Lr изменяет быстроту обучения.
+На прикрепленных скриншотах одно и то же количество итераций, но разный параметр Lr.
 
-- Перечисленные в этом туториале действия могут быть выполнены запуском на исполнение скрипт-файла, доступного [в репозитории](https://github.com/Den1sovDm1triy/hfss-scripting/blob/main/ScreatingSphereInAEDT.py).
-- Для запуска скрипт-файла откройте Ansys Electronics Desktop. Перейдите во вкладку [Automation] - [Run Script] - [Выберите файл с именем ScreatingSphereInAEDT.py из репозитория].
+Lr = 0.00000001
 
-```py
+![2022-09-28_15-54-13](https://user-images.githubusercontent.com/112847807/192761721-ac9f2ad0-9276-4eea-8764-3af97d3dc060.png)
 
-import ScriptEnv
-ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-oDesktop.RestoreWindow()
-oProject = oDesktop.NewProject()
-oProject.Rename("C:/Users/denisov.dv/Documents/Ansoft/SphereDIffraction.aedt", True)
-oProject.InsertDesign("HFSS", "HFSSDesign1", "HFSS Terminal Network", "")
-oDesign = oProject.SetActiveDesign("HFSSDesign1")
-oEditor = oDesign.SetActiveEditor("3D Modeler")
-oEditor.CreateSphere(
-	[
-		"NAME:SphereParameters",
-		"XCenter:="		, "0mm",
-		"YCenter:="		, "0mm",
-		"ZCenter:="		, "0mm",
-		"Radius:="		, "1.0770329614269mm"
-	], 
-)
+Lr = 0.0001
 
-```
+![2022-09-28_15-55-15](https://user-images.githubusercontent.com/112847807/192761824-e3d75975-1610-418c-8759-485557d2d879.png)
+
+
 
 ## Выводы
-
-Абзац умных слов о том, что было сделано и что было узнано.
+В первой лабораторной работе мы написали самые простые программы вывода на языках  Python и С#, попробовали поработать в программе Unity, изучили метод реализации линейной регрессии
 
 | Plugin | README |
 | ------ | ------ |
