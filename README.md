@@ -172,7 +172,7 @@ public class NewBehaviourScript : MonoBehaviour
 
     IEnumerator GoogleSheets()
     {
-        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/"https://sheets.googleapis.com/v4/spreadsheets/1VycC_wqlRiBrNZ_-NEy-yHfP457tUKVmoGKZ1ISnUmU/values/Лист1?key=AIzaSyBSu-5o-W_XoQMqutcg0ev_nAabSAp3Nb8"");
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1VycC_wqlRiBrNZ_-NEy-yHfP457tUKVmoGKZ1ISnUmU/values/Лист1?key=AIzaSyBSu-5o-W_XoQMqutcg0ev_nAabSAp3Nb8"");
         yield return curentResp.SendWebRequest();
         string rawResp = curentResp.downloadHandler.text;
         var rawJson = JSON.Parse(rawResp);
