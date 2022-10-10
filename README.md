@@ -1,5 +1,5 @@
 # АНАЛИЗ ДАННЫХ И ИСКУССТВЕННЫЙ ИНТЕЛЛЕКТ [in GameDev]
-Отчет по лабораторной работе #1 выполнил(а):
+Отчет по лабораторной работе #2 выполнил(а):
 - Худорожкова Екатерина Дмитриевна
 - РИ-210933
 Отметка о выполнении заданий (заполняется студентом):
@@ -35,108 +35,350 @@
 - ✨Magic ✨
 
 ## Цель работы
-Ознакомиться с основными операторами зыка Python на примере реализации линейной регрессии.
+Познакомиться с программными средствами для организции передачи данных между инструментами google, Python и Unity.
 
 ## Задание 1
-### Написать Hello World на Python и Unity
+### Реализовать совместную работу и передачу данных в связке Python - Google-Sheets – Unity.
 Ход работы: 
-- На языке Python выводим Hello World одной строчкой. Скриншот с Google Collab.
-![скрин 1](https://user-images.githubusercontent.com/112847807/192756109-b4836b6c-d48a-40a1-a3b0-bdf2e47052b0.png)
-- На языке C# с помощью Unity сделаем вывод той же фразы.
+- В облачном сервисе google console подключаем API для работы с google sheets и google drive.
+
+![2022-10-11_01-16-26](https://user-images.githubusercontent.com/112847807/194945623-e127fcf7-0ffe-4a94-b8a9-e098b9c20656.png)
+
+- Реализовываю запись данных из кода на python в google-таблицу. 
+Данные описывают изменение темпа инфляции на протяжении 11 отсчётных периодов, с учётом стоимости игрового объекта в каждый период
+
+```py
+import gspread
+import numpy as np
+gs = gspread.service_account(filename='celestial-feat-364617-38d786a51576.json')
+sh = gs.open("UnitySheets")
+price = np.random.randint(2000, 10000, 11)
+mon = list(range(1, 11))
+i = 0
+while i <= len(mon):
+    i += 1
+    if i == 0:
+        continue
+    else:
+        tempInf = ((price[i-1]-price[i-2])/price[i-2])*100
+        tempInf = str(tempInf)
+        tempInf = tempInf.replace('.', ',')
+        sh.sheet1.update(('A' + str(i)), str(i))
+        sh.sheet1.update(('B' + str(i)), str(price[i-1]))
+        sh.sheet1.update(('C' + str(i)), str(tempInf))
+        print(tempInf)
+```
+
+![2022-10-10_23-23-46](https://user-images.githubusercontent.com/112847807/194945928-dc2a73d9-509f-4363-971b-c961028aff4e.png)
+
+![2022-10-10_23-24-32](https://user-images.githubusercontent.com/112847807/194946040-4803afbe-85e2-494a-9f3e-efd09be4c85a.png)
+
+-Создаю проект на Unity, который должен получать данные из google-таблицы
+
 ```py
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
+using SimpleJSON;
 
-public class HelloWorld : MonoBehaviour
+public class NewBehaviourScript : MonoBehaviour
 {
+    public AudioClip goodSpeak;
+    public AudioClip normalSpeak;
+    public AudioClip badSpeak;
+    private AudioSource selectAudio;
+    private Dictionary<string,float> dataSet = new Dictionary<string, float>();
+    private bool statusStart = false;
+    private int i = 1;
+
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Hello World");
+        StartCoroutine(GoogleSheets());
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    }
+
+    IEnumerator GoogleSheets()
+    {
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1VycC_wqlRiBrNZ_-NEy-yHfP457tUKVmoGKZ1ISnUmU/values/Лист1?key=AIzaSyBSu-5o-W_XoQMqutcg0ev_nAabSAp3Nb8");
+        yield return curentResp.SendWebRequest();
+        string rawResp = curentResp.downloadHandler.text;
+        var rawJson = JSON.Parse(rawResp);
+        foreach (var itemRawJson in rawJson["values"])
+        {
+            var parseJson = JSON.Parse(itemRawJson.ToString());
+            var selectRow = parseJson[0].AsStringList;
+            dataSet.Add(("Mon_" + selectRow[0]), float.Parse(selectRow[2]));
+        }
+        Debug.Log(dataSet["Mon_1"]);
     }
 }
 ```
-Скриншот с Unity. 
+![2022-10-11_00-02-32](https://user-images.githubusercontent.com/112847807/194946550-b7727efd-51d2-4702-bd1e-02af13abf6b3.png)
 
-![скрин 3](https://user-images.githubusercontent.com/112847807/192756798-ee0c2c78-83d4-4431-b641-10068ec430f4.png)
+![2022-10-11_00-13-44](https://user-images.githubusercontent.com/112847807/194946727-f99232cd-04cc-48b2-8360-118ce6021119.png)
+
+-Написать функционал на Unity, в котором будет воспризводиться аудио-файл в зависимости от значения данных из таблицы.
+
+```py
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using SimpleJSON;
+
+public class NewBehaviourScript : MonoBehaviour
+{
+    public AudioClip goodSpeak;
+    public AudioClip normalSpeak;
+    public AudioClip badSpeak;
+    private AudioSource selectAudio;
+    private Dictionary<string,float> dataSet = new Dictionary<string, float>();
+    private bool statusStart = false;
+    private int i = 1;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        StartCoroutine(GoogleSheets());
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (dataSet["Mon_" + i.ToString()] <= 10 & statusStart == false & i != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioGood());
+            Debug.Log(dataSet["Mon_" + i.ToString()]);
+        }
+
+        if (dataSet["Mon_" + i.ToString()] > 10 & dataSet["Mon_" + i.ToString()] < 100 & statusStart == false & i != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioNormal());
+            Debug.Log(dataSet["Mon_" + i.ToString()]);
+        }
+
+        if (dataSet["Mon_" + i.ToString()] >= 100 & statusStart == false & i != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioBad());
+            Debug.Log(dataSet["Mon_" + i.ToString()]);
+        }
+    }
+
+    IEnumerator GoogleSheets()
+    {
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1qh1aFQZOrx29qXiso0dvL-unAp7F_1ggMiu3A-Uuyes/values/Лист1?key=AIzaSyDJNeqtiLyZai_ueRr9nKzoiZGw6vpe3pQ");
+        yield return curentResp.SendWebRequest();
+        string rawResp = curentResp.downloadHandler.text;
+        var rawJson = JSON.Parse(rawResp);
+        foreach (var itemRawJson in rawJson["values"])
+        {
+            var parseJson = JSON.Parse(itemRawJson.ToString());
+            var selectRow = parseJson[0].AsStringList;
+            dataSet.Add(("Mon_" + selectRow[0]), float.Parse(selectRow[2]));
+        }
+    }
+
+    IEnumerator PlaySelectAudioGood()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = goodSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        i++;
+    }
+    IEnumerator PlaySelectAudioNormal()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = normalSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        i++;
+    }
+    IEnumerator PlaySelectAudioBad()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = badSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(4);
+        statusStart = false;
+        i++;
+    }
+}
+```
+
+![2022-10-11_00-53-37](https://user-images.githubusercontent.com/112847807/194947654-e622bc8a-1280-4dec-9963-29abf069c47c.png)
+
 
 ### Задание 2
-### В разделе "ход работы" пошагово выполнить каждый пункт с описанием и примером реализации задачи по теме лабораторной работы
+### Реализовать запись в Google-таблицу набора данных, полученных с помощью линейной регрессии из лабораторной работы № 1.
+```py
+import gspread
+import numpy as np
 
-Ход работы:
+def loss_function(a, b, x, y):
+    num = len(x)
+    prediction = model(a, b, x)
+    return (0.5 / num) * (np.square(prediction - y)).sum()
 
-- Произвести подготовку данных для работы с алгоритмом линейной регрессии. 10 видов данных были установлены случайным образом, и данные находились в линейной зависимости. Данные преобразуются в формат массива, чтобы их можно было вычислить напрямую при использовании умножения и сложения.
+def model(a, b, x):
+    return a * x + b
 
-Первичная визуализация данных. 
+def optimize(a, b, x, y):
+    num = len(x)
+    prediction = model(a, b, x)
+    da = (1.0 / num) * ((prediction - y) * x).sum()
+    db = (1.0 / num) * ((prediction - y).sum())
+    a = a - Lr * da
+    b = b - Lr * db
+    return a, b
 
-![1](https://user-images.githubusercontent.com/112847807/192759490-4436061a-91b8-4ad1-b7f7-a0a27aa64dfa.png)
+def iterate(a, b, x, y, times):
+    for i in range(times):
+        a, b = optimize(a, b, x, y)
+    return a, b
 
+gc = gspread.service_account(filename='celestial-feat-364617-38d786a51576.json')
+sh = gc.open("UnitySheets")
 
-Добавим в код функции. 
+x = [3, 21, 22, 34, 54, 34, 55, 67, 89, 99]
+x = np.array(x)
+y = [2, 22, 24, 65, 79, 82, 55, 130, 150, 199]
+y = np.array(y)
+a = np.random.rand(1)
+b = np.random.rand(1)
+Lr = 0.000001
+price = np.random.randint(2000, 10000, 11)
+mon = list(range(1, 11))
+i = 0
 
-![2022-09-28_15-33-48](https://user-images.githubusercontent.com/112847807/192757895-210bb761-bbd1-4efa-a544-8c15481df855.png)
+while i <= len(mon):
+    i += 1
+    if i == 0:
+        continue
+    else:
+        a, b = iterate(a, b, x, y, 100)
+        prediction = model(a, b, x)
+        loss = loss_function(a, b, x, y)
+        tempInf = loss
+        tempInf = str(tempInf)
+        tempInf = tempInf.replace('.', ',')
+        sh.sheet1.update(('A' + str(i)), str(i))
+        sh.sheet1.update(('B' + str(i)), str(tempInf))
+        print(tempInf)
+```
 
-- Определите связанные функции. Функция модели: определяет модель линейной регрессии wx+b. Функция потерь: функция потерь среднеквадратичной ошибки. Функция оптимизации: метод градиентного спуска для нахождения частных производных w и b.
+![2022-10-11_01-06-35](https://user-images.githubusercontent.com/112847807/194948219-ea5c8e5e-2d50-463a-a153-6ff7a947313f.png)
 
-Есть несколько функций, которые связаны между собой. Это optimize и iterate, optimize и model.
-Функции optimize и model связаны, так как для каждого случая создается модель линейной регрессии.
-На каждой итерации нужно находить частные произведения, поэтому optimize и iterate зависят друг от друга.
-
-Первая итерация 
-
-![Итерация 1](https://user-images.githubusercontent.com/112847807/192758909-4b286bd8-fdff-4f6a-9bd9-9a8470e798c2.png)
-
-Вторая итерация 
-
-![Итерация 2](https://user-images.githubusercontent.com/112847807/192758966-57c11dca-fc99-49a9-828a-f0dd18a394f5.png)
-
-Третья итерация 
-
-![Итерация 3](https://user-images.githubusercontent.com/112847807/192759012-ed424b1c-6b50-4049-b9e8-7c65a0cd7ceb.png)
-
-Четвертая итерация
-
-![Итерация 4](https://user-images.githubusercontent.com/112847807/192759070-fbbf8596-2581-4e94-a0a3-23729b5b6478.png)
-
-Пятая итерация 
-
-![Итерация 5](https://user-images.githubusercontent.com/112847807/192759098-a50dff00-da21-45cb-888c-6f8fc67bae8f.png)
-
-Шестая итерация 
-
-![Итерация 6](https://user-images.githubusercontent.com/112847807/192759149-c4836013-1863-43ae-80b3-3995f1837881.png)
-
+![2022-10-11_01-06-59](https://user-images.githubusercontent.com/112847807/194948296-e510a9bc-41c2-4120-afcd-268477e7f00d.png)
 
 ## Задание 3
-### Должна ли величина loss стремиться к нулю при изменении исходных данных? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ.
-Величина стремится к нулю. В этом можно убедиться запустив несколько итераций. 
+### Самостоятельно разработать сценарий воспроизведения звукового сопровождения в Unity в зависимости от изменения считанных данных в задании 2.
 
-На 1 итерации среднеквадратичная ошибка больше 2000
+-Изменение диапазонов и количества колонок
+```py
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using SimpleJSON;
 
-![Итерация 1](https://user-images.githubusercontent.com/112847807/192760263-72d300af-fdd6-4111-b5db-34a6a87669fb.png)
+public class NewBehaviourScript : MonoBehaviour
+{
+    public AudioClip goodSpeak;
+    public AudioClip normalSpeak;
+    public AudioClip badSpeak;
+    private AudioSource selectAudio;
+    private Dictionary<string, float> dataSet = new Dictionary<string, float>();
+    private bool statusStart = false;
+    private int i = 1;
 
-На 1000 итерации среднеквадратичная ошибка меньше 200
+    void Start()
+    {
+        StartCoroutine(GoogleSheets());
+    }
 
-![Итерация 6](https://user-images.githubusercontent.com/112847807/192760422-a65ba05a-3e01-436e-aabd-249f66b81204.png)
+    void Update()
+    {
+        if (dataSet["Mon_" + i.ToString()] <= 195 & statusStart == false & i != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioGood());
+            Debug.Log(dataSet["Mon_" + i.ToString()]);
+        }
 
+        if (dataSet["Mon_" + i.ToString()] > 195 & dataSet["Mon_" + i.ToString()] < 500 & statusStart == false & i != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioNormal());
+            Debug.Log(dataSet["Mon_" + i.ToString()]);
+        }
 
-### Какова роль параметра Lr? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ. В качестве эксперимента можете изменить значение параметра.
-Изменение параметра Lr пиводит к уменьшению количества итераций, которые требуются для достижения результата. Другими словами, параметр Lr изменяет быстроту обучения.
-На прикрепленных скриншотах одно и то же количество итераций, но разный параметр Lr.
+        if (dataSet["Mon_" + i.ToString()] >= 500 & statusStart == false & i != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioBad());
+            Debug.Log(dataSet["Mon_" + i.ToString()]);
+        }
+    }
 
-Lr = 0.00000001
+    IEnumerator GoogleSheets()
+    {
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1VycC_wqlRiBrNZ_-NEy-yHfP457tUKVmoGKZ1ISnUmU/values/Лист1?key=AIzaSyBSu-5o-W_XoQMqutcg0ev_nAabSAp3Nb8");
+        yield return curentResp.SendWebRequest();
+        string rawResp = curentResp.downloadHandler.text;
+        var rawJson = JSON.Parse(rawResp);
+        foreach (var itemRawJson in rawJson["values"])
+        {
+            var parseJson = JSON.Parse(itemRawJson.ToString());
+            var selectRow = parseJson[0].AsStringList;
+            dataSet.Add(("Mon_" + selectRow[0]), float.Parse(selectRow[1]));
+        }
+    }
+    IEnumerator PlaySelectAudioGood()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = goodSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        i++;
+    }
+    IEnumerator PlaySelectAudioNormal()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = normalSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        i++;
+    }
+    IEnumerator PlaySelectAudioBad()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = badSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(4);
+        statusStart = false;
+        i++;
+    }
+}
+```
 
-![2022-09-28_15-54-13](https://user-images.githubusercontent.com/112847807/192761721-ac9f2ad0-9276-4eea-8764-3af97d3dc060.png)
-
-Lr = 0.0001
-
-![2022-09-28_15-55-15](https://user-images.githubusercontent.com/112847807/192761824-e3d75975-1610-418c-8759-485557d2d879.png)
-
-
+![2022-10-11_01-13-59](https://user-images.githubusercontent.com/112847807/194948598-30590acb-9ba0-4ae7-9ad4-7eb0d290f06a.png)
 
 ## Выводы
-В первой лабораторной работе мы написали самые простые программы вывода на языках  Python и С#, попробовали поработать в программе Unity, изучили метод реализации линейной регрессии
+В ходе выполнения лабораторной работы, я записала данные в google-таблицу с помощью кода на Python. Был создан проект на Unity, целью которого является получение значений из таблицы с последующим выводом их в консоль. Также был разработан функционал воспроизведения звукового сопровождения в Unity в зависимости от значений данных из таблицы.
 
 | Plugin | README |
 | ------ | ------ |
