@@ -172,7 +172,7 @@ public class NewBehaviourScript : MonoBehaviour
 
     IEnumerator GoogleSheets()
     {
-        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1qh1aFQZOrx29qXiso0dvL-unAp7F_1ggMiu3A-Uuyes/values/Лист1?key=AIzaSyDJNeqtiLyZai_ueRr9nKzoiZGw6vpe3pQ");
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/"https://sheets.googleapis.com/v4/spreadsheets/1VycC_wqlRiBrNZ_-NEy-yHfP457tUKVmoGKZ1ISnUmU/values/Лист1?key=AIzaSyBSu-5o-W_XoQMqutcg0ev_nAabSAp3Nb8"");
         yield return curentResp.SendWebRequest();
         string rawResp = curentResp.downloadHandler.text;
         var rawJson = JSON.Parse(rawResp);
@@ -248,7 +248,7 @@ def iterate(a, b, x, y, times):
         a, b = optimize(a, b, x, y)
     return a, b
 
-gc = gspread.service_account(filename='celestial-feat-364617-38d786a51576.json')
+gc = gspread.service_account(filename='laboratory-365115-2761b27ae38c.json')
 sh = gc.open("UnitySheets")
 
 x = [3, 21, 22, 34, 54, 34, 55, 67, 89, 99]
