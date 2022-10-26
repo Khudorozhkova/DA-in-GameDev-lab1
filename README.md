@@ -1,5 +1,5 @@
 # АНАЛИЗ ДАННЫХ И ИСКУССТВЕННЫЙ ИНТЕЛЛЕКТ [in GameDev]
-Отчет по лабораторной работе #1 выполнил(а):
+Отчет по лабораторной работе #3 выполнил(а):
 - Худорожкова Екатерина Дмитриевна
 - РИ-210933
 Отметка о выполнении заданий (заполняется студентом):
@@ -35,31 +35,133 @@
 - ✨Magic ✨
 
 ## Цель работы
-Ознакомиться с основными операторами зыка Python на примере реализации линейной регрессии.
+Познакомиться с программными средствами для создания системы машинного обучения и ее интеграции в Unity.
+
+##Постановка задачи
+В данной лабораторной работе создается ML-агент и тренируется нейросеть, задача которой будет заключаться в управлении шаром. Задача шара заключается в том, чтобы оставаясь на плоскости находить кубик, смещающийся в заданном случайном диапазоне координат.
 
 ## Задание 1
-### Написать Hello World на Python и Unity
+### Реализовать систему машинного обучения в связке Python - Google-Sheets – Unity
 Ход работы: 
-- На языке Python выводим Hello World одной строчкой. Скриншот с Google Collab.
-![скрин 1](https://user-images.githubusercontent.com/112847807/192756109-b4836b6c-d48a-40a1-a3b0-bdf2e47052b0.png)
-- На языке C# с помощью Unity сделаем вывод той же фразы.
+- Для начала нужно было создать пустой проект на Unity. Далее скачать папку со всеми нужными материалами. В проект добавить ML Agent. После добавить файлы
+ml-agents-release_19 / com,unity.ml-agents / package.json и ml-agents-release_19 / com,unity.ml-agents.extensions / package.json
+
+![2022-10-26_17-48-46](https://user-images.githubusercontent.com/112847807/198036756-f55bb1f5-0a81-448e-a6a9-94995f75fad5.png)
+
+-Далее запустить Anaconda Prompt(консоль)
+- Написать определенные команды для скачивания библиотек, создания и активации  ML-агента
+
+![скрин 2](https://user-images.githubusercontent.com/112847807/198038065-f31193f1-29bd-4ea6-aa12-2b818c125ad3.png)
+
+- Следующий шаг: создание плоскости, куба и сферы. Дальше создать  C# скрипт-файл, подключить его к сфере
+
+![скрин 3](https://user-images.githubusercontent.com/112847807/198038965-d4ae764d-74ff-4146-afde-caecffeeabaf.png)
+
+- В скрипт добавить код
 ```py
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 
-public class HelloWorld : MonoBehaviour
+public class RollerAgent : Agent
 {
-    // Start is called before the first frame update
+    Rigidbody rBody;
     void Start()
     {
-        Debug.Log("Hello World");
+        rBody = GetComponent<Rigidbody>();
+    }
+
+    public Transform Target;
+    public override void OnEpisodeBegin()
+    {
+        if (this.transform.localPosition.y < 0)
+        {
+            this.rBody.angularVelocity = Vector3.zero;
+            this.rBody.velocity = Vector3.zero;
+            this.transform.localPosition = new Vector3(0, 0.5f, 0);
+        }
+
+        Target.localPosition = new Vector3(Random.value * 8-4, 0.5f, Random.value * 8-4);
+    }
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        sensor.AddObservation(Target.localPosition);
+        sensor.AddObservation(this.transform.localPosition);
+        sensor.AddObservation(rBody.velocity.x);
+        sensor.AddObservation(rBody.velocity.z);
+    }
+    public float forceMultiplier = 10;
+    public override void OnActionReceived(ActionBuffers actionBuffers)
+    {
+        Vector3 controlSignal = Vector3.zero;
+        controlSignal.x = actionBuffers.ContinuousActions[0];
+        controlSignal.z = actionBuffers.ContinuousActions[1];
+        rBody.AddForce(controlSignal * forceMultiplier);
+
+        float distanceToTarget = Vector3.Distance(this.transform.localPosition, Target.localPosition);
+
+        if(distanceToTarget < 1.42f)
+        {
+            SetReward(1.0f);
+            EndEpisode();
+        }
+        else if (this.transform.localPosition.y < 0)
+        {
+            EndEpisode();
+        }
     }
 }
 ```
-Скриншот с Unity. 
+![скрин 4](https://user-images.githubusercontent.com/112847807/198039687-1e851a54-8366-4db9-9c8a-db5cc321f3d3.png)
 
-![скрин 3](https://user-images.githubusercontent.com/112847807/192756798-ee0c2c78-83d4-4431-b641-10068ec430f4.png)
+- Сфере добавить компоненты Rigidbody, Decision Requester, Behavior Parameters 
+
+![скрин 5](https://user-images.githubusercontent.com/112847807/198040162-1937f149-00ba-4e7e-a7fc-1a4166a77303.png)
+
+-Добавить файл конфигурации нейронной сети
+```py
+behaviors:
+  RollerBall:
+    trainer_type: ppo
+    hyperparameters:                 
+      batch_size: 10
+      buffer_size: 100
+      learning_rate: 3.0e-4
+      beta: 5.0e-4
+      epsilon: 0.2
+      lambd: 0.99
+      num_epoch: 3
+      learning_rate_schedule: linear
+    network_settings: 
+      normalize: false
+      hidden_units: 128
+      num_layers: 2
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+    max_steps: 500000
+    time_horizon: 64
+    summary_freq: 10000
+```
+- Запустить ML-agent
+
+![скрин 6](https://user-images.githubusercontent.com/112847807/198040790-3f0d60f4-11c3-4b38-b111-a435c8ae9abe.png)
+
+- На скриншотах ниже представлены 3, 9, 27 копий модели «Плоскость-Сфера-Куб»
+
+![скрин 7](https://user-images.githubusercontent.com/112847807/198041883-afd4c137-d8e0-423e-bd68-6d8dbbbee6c5.png)
+
+![скрин 8](https://user-images.githubusercontent.com/112847807/198041985-44de9501-d41f-41c1-aca6-6c51833d23ef.png)
+
+![скрин 9](https://user-images.githubusercontent.com/112847807/198042054-5cc44926-2062-4a65-b185-047b17edb15b.png)
+
+- После обучения движение шарика стало более правильным. Шарик стал быстрее находить кубик
+
+![скрин 10](https://user-images.githubusercontent.com/112847807/198042460-39e04975-6ac2-429e-90fa-82fe2731d56b.png)
 
 ### Задание 2
 ### В разделе "ход работы" пошагово выполнить каждый пункт с описанием и примером реализации задачи по теме лабораторной работы
