@@ -164,78 +164,105 @@ behaviors:
 ![скрин 10](https://user-images.githubusercontent.com/112847807/198042460-39e04975-6ac2-429e-90fa-82fe2731d56b.png)
 
 ### Задание 2
-### В разделе "ход работы" пошагово выполнить каждый пункт с описанием и примером реализации задачи по теме лабораторной работы
+### Подробно опишите каждую строку файла конфигурации нейронной сети, доступного в папке с файлами проекта по ссылке. Самостоятельно найдите информацию о компонентах Decision Requester, Behavior Parameters, добавленных на сфере.
+- Decision Requester - запрашивает решение через регулярные промежутки времени и обрабатывает чередование между ними во время обучения.
 
-Ход работы:
+- Behavior Parameters - определяет принятие объектом решений, в него указывается какой тип поведения будет использоваться: уже обученная модель или удалённый процесс обучения.
 
-- Произвести подготовку данных для работы с алгоритмом линейной регрессии. 10 видов данных были установлены случайным образом, и данные находились в линейной зависимости. Данные преобразуются в формат массива, чтобы их можно было вычислить напрямую при использовании умножения и сложения.
-
-Первичная визуализация данных. 
-
-![1](https://user-images.githubusercontent.com/112847807/192759490-4436061a-91b8-4ad1-b7f7-a0a27aa64dfa.png)
-
-
-Добавим в код функции. 
-
-![2022-09-28_15-33-48](https://user-images.githubusercontent.com/112847807/192757895-210bb761-bbd1-4efa-a544-8c15481df855.png)
-
-- Определите связанные функции. Функция модели: определяет модель линейной регрессии wx+b. Функция потерь: функция потерь среднеквадратичной ошибки. Функция оптимизации: метод градиентного спуска для нахождения частных производных w и b.
-
-Есть несколько функций, которые связаны между собой. Это optimize и iterate, optimize и model.
-Функции optimize и model связаны, так как для каждого случая создается модель линейной регрессии.
-На каждой итерации нужно находить частные произведения, поэтому optimize и iterate зависят друг от друга.
-
-Первая итерация 
-
-![Итерация 1](https://user-images.githubusercontent.com/112847807/192758909-4b286bd8-fdff-4f6a-9bd9-9a8470e798c2.png)
-
-Вторая итерация 
-
-![Итерация 2](https://user-images.githubusercontent.com/112847807/192758966-57c11dca-fc99-49a9-828a-f0dd18a394f5.png)
-
-Третья итерация 
-
-![Итерация 3](https://user-images.githubusercontent.com/112847807/192759012-ed424b1c-6b50-4049-b9e8-7c65a0cd7ceb.png)
-
-Четвертая итерация
-
-![Итерация 4](https://user-images.githubusercontent.com/112847807/192759070-fbbf8596-2581-4e94-a0a3-23729b5b6478.png)
-
-Пятая итерация 
-
-![Итерация 5](https://user-images.githubusercontent.com/112847807/192759098-a50dff00-da21-45cb-888c-6f8fc67bae8f.png)
-
-Шестая итерация 
-
-![Итерация 6](https://user-images.githubusercontent.com/112847807/192759149-c4836013-1863-43ae-80b3-3995f1837881.png)
+```py
+behaviors:
+  RollerBall:                        # Имя агента
+    trainer_type: ppo                # Установка режим обучения (Proximal Policy Optimization).
+    hyperparameters:                 # Гиперпараметры.
+      batch_size: 10                 # Кол-во опытов на каждой итерации для обновления экстремумов функции.
+      buffer_size: 100               # Кол-во опыта, которое нужно набрать перед обновлением модели.
+      learning_rate: 3.0e-4          # Установка шага обучения (начальная скорость).
+      beta: 5.0e-4                   # Случайность действия, повышение разнообразия и иследованности пространства обучения.
+      epsilon: 0.2                   # Порог расхождений между старой и новой политиками при обновлении.
+      lambd: 0.99                    # Определение авторитетности оценок значений во времени. Выше значение, более авторитетен набор оценок.
+      num_epoch: 3                   # Кол-во проходов через буфер опыта.
+      learning_rate_schedule: linear # Как скорость обучения изменяется с течением времени, линейно уменьшает скорость.
+    network_settings:                # Сетевые настройки.
+      normalize: false               # Отключается нормализация входных данных.
+      hidden_units: 128              # Кол-во нейронов в скрытых слоях сети.
+      num_layers: 2                  # Кол-во скрытых слоев для размещения нейронов.
+    reward_signals:                  # Сигналы о вознаграждении.
+      extrinsic:
+        gamma: 0.99                  # Коэффициент скидки для будущих вознаграждений.
+        strength: 1.0                # Шаг для learning_rate.
+    max_steps: 500000                # Общее количество шагов, которые должны быть выполнены до завершения обучения.
+    time_horizon: 64                 # Кол-во циклов ML агента, хранящихся в буфере до ввода в модель.
+    summary_freq: 10000              # Кол-во опыта, который необходимо собрать перед созданием и отображением статистики.
+```
 
 
 ## Задание 3
-### Должна ли величина loss стремиться к нулю при изменении исходных данных? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ.
-Величина стремится к нулю. В этом можно убедиться запустив несколько итераций. 
+### Доработайте сцену и обучите ML-Agent таким образом, чтобы шар перемещался между двумя кубами разного цвета. Кубы должны, как и в первом задании, случайно изменять координаты на плоскости.
+- Для начала создадим дополнительный куб в среде
 
-На 1 итерации среднеквадратичная ошибка больше 2000
+![скрин 11](https://user-images.githubusercontent.com/112847807/198045578-f010a70f-5fbe-4d88-86d2-70e858cecc72.png)
 
-![Итерация 1](https://user-images.githubusercontent.com/112847807/192760263-72d300af-fdd6-4111-b5db-34a6a87669fb.png)
+- Обновим код под новую цель
+```py
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 
-На 1000 итерации среднеквадратичная ошибка меньше 200
+public class RollerAgent : Agent
+{
+    Rigidbody rBody;
+    void Start()
+    {
+        rBody = GetComponent<Rigidbody>();
+    }
 
-![Итерация 6](https://user-images.githubusercontent.com/112847807/192760422-a65ba05a-3e01-436e-aabd-249f66b81204.png)
+    public Transform Target;
+    public Transform Target2;
+    public override void OnEpisodeBegin()
+    {
+        if (this.transform.localPosition.y < 0)
+        {
+            this.rBody.angularVelocity = Vector3.zero;
+            this.rBody.velocity = Vector3.zero;
+            this.transform.localPosition = new Vector3(0, 0.5f, 0);
+        }
 
+        Target.localPosition = new Vector3(Random.value * 8 - 4, 0.5f, Random.value * 8 - 4);
+        Target2.localPosition = new Vector3(Random.value * 8 - 4, 0.5f, Random.value * 8 - 4);
+    }
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        sensor.AddObservation(Target.localPosition);
+        sensor.AddObservation(this.transform.localPosition);
+        sensor.AddObservation(rBody.velocity.x);
+        sensor.AddObservation(rBody.velocity.z);
+    }
+    public float forceMultiplier = 10;
+    public override void OnActionReceived(ActionBuffers actionBuffers)
+    {
+        Vector3 controlSignal = Vector3.zero;
+        controlSignal.x = actionBuffers.ContinuousActions[0];
+        controlSignal.z = actionBuffers.ContinuousActions[1];
+        rBody.AddForce(controlSignal * forceMultiplier);
 
-### Какова роль параметра Lr? Ответьте на вопрос, приведите пример выполнения кода, который подтверждает ваш ответ. В качестве эксперимента можете изменить значение параметра.
-Изменение параметра Lr пиводит к уменьшению количества итераций, которые требуются для достижения результата. Другими словами, параметр Lr изменяет быстроту обучения.
-На прикрепленных скриншотах одно и то же количество итераций, но разный параметр Lr.
+        float distanceToTarget = Vector3.Distance(this.transform.localPosition, Target.localPosition);
+        float distanceToTarget2 = Vector3.Distance(this.transform.localPosition, Target2.localPosition);
 
-Lr = 0.00000001
-
-![2022-09-28_15-54-13](https://user-images.githubusercontent.com/112847807/192761721-ac9f2ad0-9276-4eea-8764-3af97d3dc060.png)
-
-Lr = 0.0001
-
-![2022-09-28_15-55-15](https://user-images.githubusercontent.com/112847807/192761824-e3d75975-1610-418c-8759-485557d2d879.png)
-
-
+        if (distanceToTarget < 1.42f || distanceToTarget2 < 1.42f)
+        {
+            SetReward(1.0f);
+            EndEpisode();
+        }
+        else if (this.transform.localPosition.y < 0)
+        {
+            EndEpisode();
+        }
+    }
+}
+```
 
 ## Выводы
 В первой лабораторной работе мы написали самые простые программы вывода на языках  Python и С#, попробовали поработать в программе Unity, изучили метод реализации линейной регрессии
