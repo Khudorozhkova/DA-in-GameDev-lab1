@@ -69,7 +69,7 @@
 ![9 1](https://user-images.githubusercontent.com/112847807/205129607-4a6b5c6f-e002-4c74-a171-4c07678a81de.png)
 
 - Изменяем параметр batch_size с 1024 на 2048
-![9](https://user-images.githubusercontent.com/112847807/205135401-57c035e1-afd7-4930-b163-204a92b48505.png)
+![10](https://user-images.githubusercontent.com/112847807/205136703-712a7e47-4b54-4766-a76e-3bbe2a58c718.png)
 
 ![2048](https://user-images.githubusercontent.com/112847807/205136163-20342717-0675-4c18-9c35-db36209d0e92.png)
 
