@@ -58,8 +58,6 @@
 
 По ссылке из консоли перейдем на TensorBoard и посмотрим графики.
 
-![без изменений](https://user-images.githubusercontent.com/112847807/205137738-f1d5eec1-163d-4a3b-bd43-25fa2d650b28.png)
-
 ![7 1](https://user-images.githubusercontent.com/112847807/205134087-4968709d-684e-4d56-bb6a-7dc44bd61224.png)
 
 ### Задание 2
@@ -81,8 +79,11 @@
 
 - Изменяем параметр epsilon с 0.2 на 0.3 и параметр lambd с 0.95 на 0.8
 ![2022-12-01_23-21-00](https://user-images.githubusercontent.com/112847807/205130439-c06ccf61-c9d6-4cd3-a306-35d8c717e599.png)
+![предпоследний](https://user-images.githubusercontent.com/112847807/205149170-cb5175f4-6526-4697-b563-bf5761d76e40.png)
+
 
 Если изменять данные, модель объективно обучается быстрее.
+
 conda activate MLAgents
 cd C:\lab5
 mlagents-learn Economic.yaml --run-id=Economic --force
