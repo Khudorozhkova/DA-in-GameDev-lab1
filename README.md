@@ -58,6 +58,8 @@
 
 По ссылке из консоли перейдем на TensorBoard и посмотрим графики.
 
+![без изменений](https://user-images.githubusercontent.com/112847807/205137738-f1d5eec1-163d-4a3b-bd43-25fa2d650b28.png)
+
 ![7 1](https://user-images.githubusercontent.com/112847807/205134087-4968709d-684e-4d56-bb6a-7dc44bd61224.png)
 
 ### Задание 2
@@ -66,7 +68,7 @@
 - Изменяем параметр num_layers с 2 на 3 и 
 ![8](https://user-images.githubusercontent.com/112847807/205127659-1232e4dc-a805-4315-b958-dff62fad6b73.png)
 
-![9 1](https://user-images.githubusercontent.com/112847807/205129607-4a6b5c6f-e002-4c74-a171-4c07678a81de.png)
+
 
 - Изменяем параметр batch_size с 1024 на 2048
 ![10](https://user-images.githubusercontent.com/112847807/205136703-712a7e47-4b54-4766-a76e-3bbe2a58c718.png)
@@ -79,7 +81,10 @@
 ![2022-12-01_23-21-00](https://user-images.githubusercontent.com/112847807/205130439-c06ccf61-c9d6-4cd3-a306-35d8c717e599.png)
 
 Если изменять данные, модель объективно обучается быстрее.
-
+conda activate MLAgents
+cd C:\lab5
+mlagents-learn Economic.yaml --run-id=Economic --force
+tensorboard --logdir=results\Economic
 
 ## Выводы
 В процессе выполнения этой лабораторной работы мы попробовали интегрировать экономическую систему в проект Unity в связке с MLAgent. А также проследили на графиках как влияют изменения файла yaml-агента на обучение модели.
