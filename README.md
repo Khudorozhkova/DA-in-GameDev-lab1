@@ -75,9 +75,11 @@
 
 ![2048](https://user-images.githubusercontent.com/112847807/205136163-20342717-0675-4c18-9c35-db36209d0e92.png)
 
-- Изменяем параметр epsilon с 0.2 на 0.3, 
-параметр buffer_size с 10240 до 100  
-и параметр lambd с 0.95 на 0.8
+- Изменяем параметр buffer_size с 10240 до 100 
+![2022-12-02_00-19-17](https://user-images.githubusercontent.com/112847807/205140998-eb5a1606-a5e2-49fd-bad3-92111095249c.png)
+
+
+- Изменяем параметр epsilon с 0.2 на 0.3 и параметр lambd с 0.95 на 0.8
 ![2022-12-01_23-21-00](https://user-images.githubusercontent.com/112847807/205130439-c06ccf61-c9d6-4cd3-a306-35d8c717e599.png)
 
 Если изменять данные, модель объективно обучается быстрее.
