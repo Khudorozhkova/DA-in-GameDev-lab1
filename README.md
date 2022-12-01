@@ -39,13 +39,36 @@
 
 ## Задание 1
 ### Интегрировать экономическую систему в проект Unity и обучить ML-Agent.
+Откроем файл в Unity
+![1](https://user-images.githubusercontent.com/112847807/205122925-78584ca0-a85d-4fe4-9150-dd3e6863a04e.png)
+
+Создадим виртуальное пространство и установим все требуемые библиотеки.
+![2](https://user-images.githubusercontent.com/112847807/205123172-084f2c43-9b81-4637-b7ee-82972732bfad.png)
+
+![3](https://user-images.githubusercontent.com/112847807/205123236-bb5f302a-9a28-401a-81a8-a1b906db6dce.png)
+
+![4](https://user-images.githubusercontent.com/112847807/205123279-19dabbad-7887-4bbd-aadb-cdfb6993f1ed.png)
+
+![5](https://user-images.githubusercontent.com/112847807/205123353-85e254e2-4e82-4487-b44f-117b3f91b0d0.png)
+
+Увеличим количество TargetAreaEconomic до 16 и запустим проект
+![6](https://user-images.githubusercontent.com/112847807/205123590-e174aa6b-cefb-4fb9-b2ca-57b4537355fe.png)
+
+Работу модели можно посмотреть в прикрепленном файле lab5 - Economic-ML-Agent.mp4
+
+По ссылке из консоли перейдем на TensorBoard и посмотрим графики.
+
+conda activate MLAgents
+cd C:\lab5
+mlagents-learn Economic.yaml --run-id=Economic --force
+tensorboard --logdir=results\Economic
 
 ### Задание 2
 ### Изменить параметры файла yaml-агента, определить какие параметры и как влияют на обучение модели. Описать результаты, выведенные в TensorBoard.
 
 
 ## Выводы
-
+В процессе выполнения этой лабораторной работы мы попробовали интегрировать экономическую систему в проект Unity в связке с MLAgent. А также проследили на графиках как влияют изменения файла yaml-агента на обучение модели.
 
 | Plugin | README |
 | ------ | ------ |
